@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-mongoose.set('useFindAndModify', false);
+const { Schema } = mongoose;
 
 const connectDB = async () => {
   try {
@@ -16,21 +16,45 @@ const connectDB = async () => {
 };
 connectDB();
 
-const Schema = mongoose.Schema;
-//var User = mongoose.model('User', new Schema({}), 'users');
+const reviewSchema = new Schema({
+  _id: String,
+  id: Number,
+  product_id: Number,
+  rating: String,
+  date: String,
+  summary: String,
+  body: String,
+  recommend: String,
+  reported: String,
+  reviewer_name: String,
+  reviewer_email: String,
+  response: String,
+  helpfulness: Number,
+});
+const Reviews = mongoose.model('Reviews', reviewSchema);
 
-const Reviews = mongoose.model(
-  'Reviews',
+const Characteristics = mongoose.model(
+  'Characteristics',
   new Schema({
     id: Number,
-    rating: String,
-    reported: String,
-    helpfulness: Number,
+    product_id: Number,
+    name: String,
   }),
-  'reviews'
+  'characteristics'
 );
 
-module.exports = { Reviews };
+const Meta_join = mongoose.model(
+  'Meta_join',
+  new Schema({
+    id: Number,
+    Characteristics_id: Number,
+    review_id: Number,
+    value: Number,
+  }),
+  'meta_join'
+);
+
+module.exports = { Reviews, Characteristics, Meta_join };
 // const User = mongoose.model('User', {
 //   name: {
 //     type: String,
