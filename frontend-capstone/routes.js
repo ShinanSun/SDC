@@ -1,11 +1,74 @@
 const express = require('express');
 const router = express.Router();
-const { Reviews, Characteristics, Meta_join } = require('./db/index');
+const { Reviews, Characteristics, Meta_join, Photos } = require('./db/index');
 
-router.get('/', (req, res) => {
-  res.send('hello from reviews api server!');
+router.get('/', async (req, res) => {
+  const { product_id, page = 1, count = 5, sort = 'helpful' } = req.query;
+  if (!product_id)
+    return res
+      .status(400)
+      .send("Bad Request. Can't retrieve reviews without product_id");
+
+  try {
+    let final = {
+      product: product_id,
+      page: Number(page),
+      count: Number(count),
+      results: [],
+    };
+    let docs;
+    if (sort === 'helpful') {
+      docs = await Reviews.find({ product_id }).sort({ helpfulness: -1 });
+    } else if (sort === 'newest') {
+      docs = await Reviews.find({ product_id }).sort({ date: -1 });
+    } else if (sort === 'relevant') {
+      docs = await Reviews.find({ product_id }).sort({ recommend: -1 });
+    } else {
+      return res.status(400).send('Bad Request');
+    }
+    if (!docs) return res.status(404).send('Not Found');
+    // console.log('waht are docs .........', docs, final);
+
+    var promiseArray = docs.map((doc) => {
+      final.results.push({
+        review_id: doc.id,
+        rating: Number(doc.rating),
+        summary: doc.summary,
+        recommend:
+          doc.recommend == '1' || doc.recommend == 'true' ? true : false,
+        response: doc.response,
+        body: doc.body,
+        date: doc.date,
+        reviewer_name: doc.reviewer_name,
+        helpfulness: doc.helpfulness,
+      });
+
+      return Photos.find({ review_id: doc.id })
+        .exec()
+        .then((data) =>
+          data.map((item) => {
+            return { id: item.id, url: item.url };
+          })
+        );
+    });
+
+    // console.log(`what is doc now`, final);
+    Promise.all(promiseArray).then((results) => {
+      // console.log(`what is reuslt here .......`, results);
+      for (var i = 0; i < results.length; i++) {
+        final.results[i].photos = results[i];
+      }
+
+      res.send(final);
+    });
+  } catch (err) {
+    res.status(400).send(err);
+  }
 });
 
+// Photos.find({ review_id: 9 }).exec((err, data) => {
+//   console.log(`waht is data?`, data);
+// });
 router.put('/:review_id/report', async (req, res) => {
   const id = Number(req.params.review_id);
   try {
@@ -84,6 +147,13 @@ router.get('/meta', async (req, res) => {
         characteristics: charObj,
       });
     });
+  } catch (err) {
+    res.status(400).send(err);
+  }
+});
+
+router.post('/', async (req, res) => {
+  try {
   } catch (err) {
     res.status(400).send(err);
   }

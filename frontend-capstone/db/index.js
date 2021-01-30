@@ -47,14 +47,19 @@ const Meta_join = mongoose.model(
   'Meta_join',
   new Schema({
     id: Number,
-    Characteristics_id: Number,
+    characteristics_id: Number,
     review_id: Number,
     value: Number,
   }),
   'meta_join'
 );
 
-module.exports = { Reviews, Characteristics, Meta_join };
+const Photos = mongoose.model(
+  'Photos',
+  new Schema({ id: Number, review_id: Number, url: String }),
+  'photos'
+);
+module.exports = { Reviews, Characteristics, Meta_join, Photos };
 // const User = mongoose.model('User', {
 //   name: {
 //     type: String,
