@@ -1,64 +1,91 @@
 const mongoose = require('mongoose');
+const autoIncrement = require('mongoose-auto-increment');
 const { Schema } = mongoose;
 
-const connectDB = async () => {
-  try {
-    await mongoose.connect('mongodb://0.0.0.0:27017/reviews-api', {
-      useUnifiedTopology: true,
-      useNewUrlParser: true,
-      useCreateIndex: true,
-    });
-    console.log('MongoDB Connected !!!!!');
-  } catch (error) {
-    console.error(error);
-    process.exit(1);
-  }
-};
-connectDB();
+mongoose.connect('mongodb://0.0.0.0:27017/reviews-api', {
+  useUnifiedTopology: true,
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useFindAndModify: false,
+});
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function () {
+  console.log('MongoDB Connected !!!!!');
+});
+autoIncrement.initialize(db);
 
 const reviewSchema = new Schema({
-  _id: String,
-  id: Number,
-  product_id: Number,
-  rating: String,
-  date: String,
-  summary: String,
-  body: String,
-  recommend: String,
-  reported: String,
-  reviewer_name: String,
-  reviewer_email: String,
-  response: String,
-  helpfulness: Number,
+  id: { type: Number, required: true },
+  product_id: { type: Number, required: true },
+  rating: { type: String, required: true },
+  date: { type: String, default: new Date().toString() },
+  summary: { type: String, maxLength: 60 },
+  body: { type: String, required: true, minLength: 20, maxLength: 1000 },
+  recommend: { type: String, required: true },
+  reported: { type: String, default: 'false' },
+  reviewer_name: {
+    type: String,
+    required: true,
+    maxLength: 60,
+    trim: true, // get rid of extra spaces
+  },
+  reviewer_email: {
+    type: String,
+    required: true,
+    maxLength: 60,
+    validate(value) {
+      if (!value.includes('@')) throw new Error(`Email is invalid`);
+    },
+  },
+  response: { type: String, default: '' },
+  helpfulness: { type: Number, default: 0 },
+});
+reviewSchema.plugin(autoIncrement.plugin, {
+  model: 'Reviews',
+  field: 'id',
+  startAt: 5777924,
+  incrementBy: 1,
 });
 const Reviews = mongoose.model('Reviews', reviewSchema);
 
 const Characteristics = mongoose.model(
   'Characteristics',
   new Schema({
-    id: Number,
-    product_id: Number,
-    name: String,
+    id: { type: Number, required: true },
+    product_id: { type: Number, required: true },
+    name: { type: String, required: true },
   }),
   'characteristics'
 );
 
-const Meta_join = mongoose.model(
-  'Meta_join',
-  new Schema({
-    id: Number,
-    characteristics_id: Number,
-    review_id: Number,
-    value: Number,
-  }),
-  'meta_join'
-);
+const metaSchema = new Schema({
+  id: Number,
+  characteristics_id: { type: Number, required: true },
+  review_id: { type: Number, required: true },
+  value: { type: Number, required: true },
+});
+metaSchema.plugin(autoIncrement.plugin, {
+  model: 'Meta_join',
+  field: 'id',
+  startAt: 3347475,
+  incrementBy: 1,
+});
+const Meta_join = mongoose.model('Meta_join', metaSchema, 'meta_join');
 
-const Photos = mongoose.model(
-  'Photos',
-  new Schema({ id: Number, review_id: Number, url: String }),
-  'photos'
-);
+photoSchema = new Schema({
+  id: Number,
+  review_id: Number,
+  url: { type: String, required: true },
+});
+photoSchema.plugin(autoIncrement.plugin, {
+  model: 'Photos',
+  field: 'id',
+  startAt: 2742834,
+  incrementBy: 1,
+});
+const Photos = mongoose.model('Photos', photoSchema, 'photos');
+
 module.exports = { Reviews, Characteristics, Meta_join, Photos };
 // const User = mongoose.model('User', {
 //   name: {

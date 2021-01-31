@@ -58,7 +58,6 @@ router.get('/', async (req, res) => {
       for (var i = 0; i < results.length; i++) {
         final.results[i].photos = results[i];
       }
-
       res.send(final);
     });
   } catch (err) {
@@ -66,9 +65,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Photos.find({ review_id: 9 }).exec((err, data) => {
-//   console.log(`waht is data?`, data);
-// });
 router.put('/:review_id/report', async (req, res) => {
   const id = Number(req.params.review_id);
   try {
@@ -153,10 +149,75 @@ router.get('/meta', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
+  const updates = Object.keys(req.body);
+  const allowedUpdates = [
+    'product_id',
+    'rating',
+    'recommend',
+    'characteristics',
+    'summary',
+    'body',
+    'photos',
+    'name',
+    'email',
+  ];
+  const isAllowedOperation = updates.every((update) =>
+    allowedUpdates.includes(update)
+  );
+
+  if (!isAllowedOperation)
+    return res.status(400).send('error: Invalid updates!');
+  const {
+    product_id,
+    rating,
+    recommend,
+    characteristics,
+    summary,
+    body,
+    photos,
+    name,
+    email,
+  } = req.body;
   try {
+    // var lastDoc = await Reviews.find().sort({ id: -1 }).limit(1);
+    // console.log('waht is lastDoc', lastDoc[0].id);
+    let newReview = {
+      product_id,
+      rating,
+      summary: summary || '',
+      body,
+      recommend,
+      reviewer_name: name,
+      reviewer_email: email,
+    };
+    const review = new Reviews(newReview);
+    const savedReview = await review.save();
+
+    if (photos.length > 0) {
+      photos.forEach((url) => {
+        new Photos({ review_id: savedReview.id, url }).save();
+      });
+    }
+
+    // console.log(characteristics);
+    // for (let key in characteristics) {
+    //   new Meta_join({
+    //     characteristics_id: parseInt(key),
+    //     review_id: savedReview.id,
+    //     value: parseInt(characteristics[key]),
+    //   }).save((err, data) =>
+    //     console.log('what is saved metadata.......', data)
+    //   );
+    // }
+
+    res.sendStatus(201);
   } catch (err) {
     res.status(400).send(err);
   }
 });
 
+// Meta_join.find()
+//   .sort({ _id: -1 })
+//   .limit(1)
+//   .exec((err, data) => console.log(data));
 module.exports = router;
