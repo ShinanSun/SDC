@@ -68,7 +68,7 @@ const metaSchema = new Schema({
 metaSchema.plugin(autoIncrement.plugin, {
   model: 'Meta_join',
   field: 'id',
-  startAt: 3347475,
+  startAt: 19337415,
   incrementBy: 1,
 });
 const Meta_join = mongoose.model('Meta_join', metaSchema, 'meta_join');
@@ -87,12 +87,3 @@ photoSchema.plugin(autoIncrement.plugin, {
 const Photos = mongoose.model('Photos', photoSchema, 'photos');
 
 module.exports = { Reviews, Characteristics, Meta_join, Photos };
-// const User = mongoose.model('User', {
-//   name: {
-//     type: String,
-//   },
-// });
-
-// const me = new User({ name: 'Shinan' });
-
-// me.save().then(() => console.log(me.name));
