@@ -1,0 +1,28 @@
+config:
+  target: 'http://localhost:3000'
+  processor: './randomInteger.js'
+  phases:
+    - duration: 30
+      arrivalRate: 5
+      name: Warm up
+    - duration: 60
+      arrivalRate: 5
+      rampTo: 50
+      name: Ramp up load
+    - duration: 120
+      arrivalRate: 200
+      name: Sustained load
+scenarios:
+  - name: 'test getting answers by questionID'
+    flow:
+      - function: 'generateRandomNum'
+      - get:
+          url: '/reviews'
+          qs:
+            product_id: '{{num}}'
+      - put:
+          url: '/reviews/:{{num}}/helpful'
+      - get:
+          url: '/reviews/meta'
+          qs:
+            product_id: '{{num}}'

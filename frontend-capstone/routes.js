@@ -3,6 +3,7 @@ const router = express.Router();
 const { Reviews, Characteristics, Meta_join, Photos } = require('./db/index');
 
 router.get('/', async (req, res) => {
+  // console.log(req.originalUrl);
   var { product_id, page = 1, count = 5, sort = 'helpful' } = req.query;
   page = Number(page);
   count = Number(count);
