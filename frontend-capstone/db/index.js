@@ -81,7 +81,7 @@ photoSchema = new Schema({
 photoSchema.plugin(autoIncrement.plugin, {
   model: 'Photos',
   field: 'id',
-  startAt: 2742834,
+  startAt: 2742900,
   incrementBy: 1,
 });
 const Photos = mongoose.model('Photos', photoSchema, 'photos');

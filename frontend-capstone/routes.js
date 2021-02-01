@@ -208,15 +208,12 @@ router.post('/', async (req, res) => {
 
     console.log(characteristics);
     for (let key in characteristics) {
-      new Meta_join({
-        characteristics_id: parseInt(key),
-        review_id: savedReview.id,
-        value: parseInt(characteristics[key]),
-      }).save((err, data) => {
-        if (err) {
-          console.log(err, 'err');
-        }
-        console.log('what is saved metadata.......', data);
+      Meta_join.findOneAndUpdate(
+        { characteristics_id: parseInt(key) },
+        { value: parseInt(characteristics[key]) },
+        { new: true }
+      ).exec((err, data) => {
+        if (err) throw new Error(err);
       });
     }
 
