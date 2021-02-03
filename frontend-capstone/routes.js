@@ -4,14 +4,12 @@ const { Reviews, Characteristics, Meta_join, Photos } = require('./db/index');
 
 router.get('/', async (req, res) => {
   // console.log(req.originalUrl);
-  var { product_id, page = 1, count = 5, sort = 'helpful' } = req.query;
+  var { product_id, page = 1, count = 2, sort = 'newest' } = req.query;
   page = Number(page);
   count = Number(count);
 
-  if (!product_id)
-    return res
-      .status(400)
-      .send("Bad Request. Can't retrieve reviews without product_id");
+  if (!product_id) return res.send({});
+  // res.status(400).send("Bad Request. Can't retrieve reviews without product_id");
 
   try {
     let final = {
@@ -34,7 +32,7 @@ router.get('/', async (req, res) => {
     } else {
       return res.status(400).send('Bad Request');
     }
-    if (!docs) return res.status(404).send('Not Found');
+    if (!docs) return res.send({}); //res.status(404).send('Not Found');
 
     var promiseArray = docs.map((doc) => {
       final.results.push({
@@ -80,7 +78,8 @@ router.put('/:review_id/report', async (req, res) => {
       { reported: 'true' },
       { new: true }
     );
-    if (!review) return res.status(404).send(`review_id is not valid.`);
+    if (!review) return res.send(`review_id is not valid.`);
+    //res.status(404).send(`review_id is not valid.`);
 
     res.sendStatus(204);
   } catch (err) {
@@ -93,7 +92,7 @@ router.put('/:review_id/helpful', async (req, res) => {
   try {
     const doc = await Reviews.findOne({ id });
 
-    if (!doc) return res.sendStatus(404);
+    if (!doc) return res.send(`id not valid`); //res.sendStatus(404);
 
     await Reviews.updateOne(
       { id: Number(id) },
@@ -109,7 +108,7 @@ router.get('/meta', async (req, res) => {
   const product_id = Number(req.query.product_id);
   try {
     const docs = await Reviews.find({ product_id }).exec();
-    if (!docs) return res.sendStatus(404);
+    if (!docs) return res.send({}); //res.sendStatus(404);
 
     const ratingObj = {};
     const recommendObj = { true: 0, false: 0 };
@@ -128,7 +127,7 @@ router.get('/meta', async (req, res) => {
 
     var charObj = {};
     const charDocs = await Characteristics.find({ product_id }).exec();
-    if (!charDocs) return res.sendStatus(404);
+    if (!charDocs) return res.send({}); //res.sendStatus(404);
 
     var promiseArray = charDocs.map((doc) => {
       return Meta_join.findOne({ characteristic_id: doc.id }).exec();
