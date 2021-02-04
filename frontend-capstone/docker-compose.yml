@@ -1,0 +1,21 @@
+version: '3.4'
+
+services:
+  sdcserver:
+    container_name: sdcserver
+    restart: always
+    build:
+      context: .
+      dockerfile: ./dockerfile
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/usr/src/app
+    links:
+      - sdcdb
+
+  sdcdb:
+    container_name: sdcdb
+    image: mongo:latest
+    ports:
+      - 27017:27017

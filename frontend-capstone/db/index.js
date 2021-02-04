@@ -2,12 +2,25 @@ const mongoose = require('mongoose');
 const autoIncrement = require('mongoose-auto-increment');
 const { Schema } = mongoose;
 
-mongoose.connect('mongodb://0.0.0.0:27017/reviews-api', {
-  useUnifiedTopology: true,
-  useNewUrlParser: true,
-  useCreateIndex: true,
-  useFindAndModify: false,
-});
+mongoose.connect(
+  'mongodb://172.17.0.3:27017/reviews-api',
+  {
+    useUnifiedTopology: true,
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+  },
+  (err) => {
+    if (err) {
+      mongoose.connect('mongodb://172.17.0.2:27017/reviews-api', {
+        useUnifiedTopology: true,
+        useNewUrlParser: true,
+        useCreateIndex: true,
+        useFindAndModify: false,
+      });
+    }
+  }
+);
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function () {

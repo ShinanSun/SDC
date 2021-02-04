@@ -1,0 +1,4 @@
+node_modules
+*.log
+newrelic.js
+my-test.yml
