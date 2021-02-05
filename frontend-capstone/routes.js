@@ -107,7 +107,9 @@ router.put('/:review_id/helpful', async (req, res) => {
 router.get('/meta', async (req, res) => {
   const product_id = Number(req.query.product_id);
   try {
-    const docs = await Reviews.find({ product_id }).exec();
+    const docs = await Reviews.find({ product_id })
+      .select('rating recommend')
+      .exec();
     if (!docs) return res.send({}); //res.sendStatus(404);
 
     const ratingObj = {};
@@ -186,8 +188,6 @@ router.post('/', async (req, res) => {
     email,
   } = req.body;
   try {
-    // var lastDoc = await Reviews.find().sort({ id: -1 }).limit(1);
-    // console.log('waht is lastDoc', lastDoc[0].id);
     let newReview = {
       product_id,
       rating,

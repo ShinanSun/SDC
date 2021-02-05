@@ -1,28 +1,30 @@
 config:
-  target: 'http://localhost:3000'
+  target: 'http://localhost:3000' #ec2-18-191-63-200.us-east-2.compute.amazonaws.com
   processor: './randomInteger.js'
   phases:
     - duration: 30
       arrivalRate: 5
       name: Warm up
-    - duration: 60
+    - duration: 30
       arrivalRate: 5
       rampTo: 50
       name: Ramp up load
-    - duration: 120
-      arrivalRate: 200
+    - duration: 30
+      arrivalRate: 50
       name: Sustained load
 scenarios:
   - name: 'test getting answers by questionID'
     flow:
-      - function: 'generateRandomNum'
-      - get:
-          url: '/reviews'
-          qs:
-            product_id: '{{num}}'
-      # - put:
-      #     url: '/reviews/:{{num}}/helpful'
-      # - get:
-      #     url: '/reviews/meta'
-      #     qs:
-      #       product_id: '{{num}}'
+      - loop:
+          - function: 'generateRandomNum'
+          - get:
+              url: '/reviews'
+              qs:
+                product_id: '{{num}}'
+        count: 5
+        # - put:
+        #     url: '/reviews/:{{num}}/helpful'
+        # - get:
+        #     url: '/reviews/meta'
+        #     qs:
+        #       product_id: '{{num}}'

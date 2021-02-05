@@ -2,8 +2,9 @@ const mongoose = require('mongoose');
 const autoIncrement = require('mongoose-auto-increment');
 const { Schema } = mongoose;
 
+//18.222.253.155
 mongoose.connect(
-  'mongodb://172.17.0.3:27017/reviews-api',
+  'mongodb://0.0.0.0:27017/reviews-api',
   {
     useUnifiedTopology: true,
     useNewUrlParser: true,
@@ -12,7 +13,7 @@ mongoose.connect(
   },
   (err) => {
     if (err) {
-      mongoose.connect('mongodb://172.17.0.2:27017/reviews-api', {
+      mongoose.connect('mongodb://172.17.0.3:27017/reviews-api', {
         useUnifiedTopology: true,
         useNewUrlParser: true,
         useCreateIndex: true,
